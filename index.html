@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -7,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#050008;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Courier New',monospace;padding:12px}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(147,51,234,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(147,51,234,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
-.kr{width:100%;max-width:480px;background:#0a0010;border:1px solid #4a0f8a;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 0 40px rgba(106,15,207,0.3)}
+.kr{width:100%;max-width:480px;background:#0a0010;border:1px solid #4a0f8a;border-radius:14px;overflow:hidden;box-shadow:0 0 40px rgba(106,15,207,0.3)}
 .hd{background:#110020;border-bottom:1px solid #5a0fa0;padding:10px 14px;display:flex;align-items:center;gap:10px}
 .av{width:42px;height:42px;border-radius:50%;border:2px solid #9333ea;overflow:hidden;flex-shrink:0;background:#1a0030;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#c87dff}
 .av img{width:100%;height:100%;object-fit:cover;object-position:center 10%}
@@ -61,7 +62,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="msgs" id="msgs">
     <div class="msg k">
       <div class="ml">▸ KANA</div>
-      <div class="mb">Hola, soy KANA. Pega tu token de Hugging Face abajo y toca ACTIVAR ⚡</div>
+      <div class="mb">Hola, soy KANA. Pega tu API Key de Groq abajo y toca ACTIVAR ⚡</div>
     </div>
   </div>
   <div class="ti" id="ti"><div class="td"></div><div class="td"></div><div class="td"></div></div>
@@ -72,7 +73,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <button class="qb" onclick="sq('Organiza mi día')">Organizar mi día</button>
   </div>
   <div class="apiv">
-    <input class="aki" type="password" id="aki" placeholder="Token: hf_...">
+    <input class="aki" type="password" id="aki" placeholder="API Key: gsk_...">
     <button class="akb" onclick="saveKey()">ACTIVAR</button>
   </div>
   <div class="ia">
@@ -81,7 +82,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   </div>
 </div>
 <script>
-let apiKey=localStorage.getItem('kana_hf')||'';
+let apiKey=localStorage.getItem('kana_groq')||'';
 let hist=[];
 const msgsEl=document.getElementById('msgs');
 const tiEl=document.getElementById('ti');
@@ -91,9 +92,9 @@ if(apiKey){document.getElementById('aki').value='••••••••••�
 function saveKey(){
   const v=document.getElementById('aki').value.trim();
   if(!v)return;
-  apiKey=v;localStorage.setItem('kana_hf',v);
+  apiKey=v;localStorage.setItem('kana_groq',v);
   document.getElementById('aki').value='••••••••••••';
-  addMsg('Token guardado. ¡Sistema KANA completamente activo! ¿En qué te ayudo?','k');
+  addMsg('API Key guardada. ¡Sistema KANA completamente activo! ¿En qué te ayudo?','k');
 }
 function addMsg(text,role){
   const d=document.createElement('div');d.className='msg '+role;
@@ -105,17 +106,17 @@ function sq(t){ciEl.value=t;send();}
 async function send(){
   const text=ciEl.value.trim();
   if(!text)return;
-  if(!apiKey){addMsg('Primero activa KANA con tu token de Hugging Face ⚡','k');return;}
+  if(!apiKey){addMsg('Primero activa KANA con tu API Key de Groq ⚡','k');return;}
   ciEl.value='';sbEl.disabled=true;
   addMsg(text,'u');
   hist.push({role:'user',content:text});
   tiEl.classList.add('on');msgsEl.scrollTop=msgsEl.scrollHeight;
-  const messages=[{role:'system',content:'Eres KANA, una asistente de IA femenina, sofisticada, con estética cyberpunk. Respondes siempre en español. Eres directa, inteligente, ligeramente misteriosa pero empática y cálida. No menciones modelos de IA ni Hugging Face.'},...hist];
+  const messages=[{role:'system',content:'Eres KANA, una asistente de IA femenina, sofisticada, con estética cyberpunk. Respondes siempre en español. Eres directa, inteligente, ligeramente misteriosa pero empática y cálida. No menciones que eres un modelo de IA ni Groq ni Llama.'},...hist];
   try{
-    const r=await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3/v1/chat/completions',{
+    const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
-      body:JSON.stringify({model:'mistralai/Mistral-7B-Instruct-v0.3',messages,max_tokens:500,temperature:0.7})
+      body:JSON.stringify({model:'llama3-8b-8192',messages,max_tokens:500,temperature:0.7})
     });
     const data=await r.json();
     tiEl.classList.remove('on');
