@@ -1,0 +1,134 @@
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K.A.N.A.</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050008;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Courier New',monospace;padding:12px}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(147,51,234,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(147,51,234,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.kr{width:100%;max-width:480px;background:#0a0010;border:1px solid #4a0f8a;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 0 40px rgba(106,15,207,0.3)}
+.hd{background:#110020;border-bottom:1px solid #5a0fa0;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.av{width:42px;height:42px;border-radius:50%;border:2px solid #9333ea;overflow:hidden;flex-shrink:0;background:#1a0030;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#c87dff}
+.av img{width:100%;height:100%;object-fit:cover;object-position:center 10%}
+.hn{flex:1}
+.ht{font-size:15px;font-weight:700;color:#c87dff;letter-spacing:3px}
+.hs{font-size:9px;color:#7040a0;letter-spacing:1.5px;display:flex;align-items:center;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:#a855f7;animation:p 1.5s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+.msgs{height:380px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:#3a0f7a #0a0010}
+.msg{max-width:86%;animation:mi .25s ease-out}
+@keyframes mi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.k{align-self:flex-start}
+.msg.u{align-self:flex-end}
+.ml{font-size:8px;letter-spacing:2px;color:#6030a0;margin-bottom:3px}
+.msg.u .ml{text-align:right;color:#7040a0}
+.mb{padding:10px 13px;border-radius:10px;font-size:13px;line-height:1.7}
+.msg.k .mb{background:#1a0030;border:1px solid #5a0fbf;color:#ddc8ff;border-top-left-radius:3px}
+.msg.u .mb{background:#1e0040;border:1px solid #7a28c0;color:#f0e0ff;border-top-right-radius:3px}
+.ti{display:none;align-self:flex-start;padding:10px 14px;background:#1a0030;border:1px solid #5a0fbf;border-radius:10px;border-top-left-radius:3px}
+.ti.on{display:flex;gap:4px;align-items:center}
+.td{width:6px;height:6px;border-radius:50%;background:#a855f7;animation:td 1.2s infinite}
+.td:nth-child(2){animation-delay:.18s}.td:nth-child(3){animation-delay:.36s}
+@keyframes td{0%,100%{opacity:.25;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
+.qrow{display:flex;gap:6px;padding:8px 12px;border-top:1px solid #2a0050;flex-wrap:wrap}
+.qb{background:#180028;border:1px solid #3a0f7a;border-radius:20px;color:#b090d0;font-family:'Courier New',monospace;font-size:10px;padding:6px 11px;cursor:pointer;transition:all .2s}
+.qb:hover{background:#2a0050;border-color:#7a28c0;color:#e0c8ff}
+.apiv{background:#0d0018;border-top:1px solid #2a0050;padding:10px 12px;display:flex;gap:6px}
+.aki{flex:1;background:#180028;border:1px solid #4a0f8a;border-radius:6px;padding:8px 10px;color:#c8a0e8;font-family:'Courier New',monospace;font-size:11px;outline:none}
+.aki::placeholder{color:#4020a0}
+.aki:focus{border-color:#a855f7}
+.akb{background:#1a0030;border:1px solid #6a0fcf;border-radius:6px;color:#a855f7;font-family:'Courier New',monospace;font-size:10px;padding:8px 12px;cursor:pointer;white-space:nowrap;font-weight:700}
+.akb:hover{background:#2a0050}
+.ia{border-top:1px solid #3a0f7a;padding:10px 12px;display:flex;gap:8px;background:#0d0018}
+.ci{flex:1;background:#180028;border:1px solid #5a0fbf;border-radius:8px;padding:10px 12px;color:#e0c8ff;font-family:'Courier New',monospace;font-size:13px;outline:none}
+.ci::placeholder{color:#4020a0}
+.ci:focus{border-color:#a855f7}
+.sb{background:#2a0058;border:1px solid #8333d0;border-radius:8px;color:#d8a8ff;font-family:'Courier New',monospace;font-size:11px;font-weight:700;padding:10px 16px;cursor:pointer;letter-spacing:1.5px;transition:all .2s}
+.sb:hover{background:#4a0f90}
+.sb:disabled{opacity:.4;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="kr">
+  <div class="hd">
+    <div class="av"><img src="kana.png" alt="K" onerror="this.parentElement.textContent='K'"></div>
+    <div class="hn">
+      <div class="ht">K.A.N.A.</div>
+      <div class="hs"><div class="dot"></div>ASISTENTE I.A. · EN LÍNEA</div>
+    </div>
+  </div>
+  <div class="msgs" id="msgs">
+    <div class="msg k">
+      <div class="ml">▸ KANA</div>
+      <div class="mb">Hola, soy KANA. Pega tu token de Hugging Face abajo y toca ACTIVAR ⚡</div>
+    </div>
+  </div>
+  <div class="ti" id="ti"><div class="td"></div><div class="td"></div><div class="td"></div></div>
+  <div class="qrow">
+    <button class="qb" onclick="sq('¿Qué puedes hacer?')">¿Qué puedes hacer?</button>
+    <button class="qb" onclick="sq('¿Cómo estás, Kana?')">¿Cómo estás?</button>
+    <button class="qb" onclick="sq('Cuéntame algo curioso')">Dato curioso</button>
+    <button class="qb" onclick="sq('Organiza mi día')">Organizar mi día</button>
+  </div>
+  <div class="apiv">
+    <input class="aki" type="password" id="aki" placeholder="Token: hf_...">
+    <button class="akb" onclick="saveKey()">ACTIVAR</button>
+  </div>
+  <div class="ia">
+    <input class="ci" id="ci" type="text" placeholder="Escribe a KANA...">
+    <button class="sb" id="sb" onclick="send()">ENVIAR</button>
+  </div>
+</div>
+<script>
+let apiKey=localStorage.getItem('kana_hf')||'';
+let hist=[];
+const msgsEl=document.getElementById('msgs');
+const tiEl=document.getElementById('ti');
+const ciEl=document.getElementById('ci');
+const sbEl=document.getElementById('sb');
+if(apiKey){document.getElementById('aki').value='••••••••••••';addMsg('Token cargado. ¡KANA activa! ¿En qué te ayudo?','k');}
+function saveKey(){
+  const v=document.getElementById('aki').value.trim();
+  if(!v)return;
+  apiKey=v;localStorage.setItem('kana_hf',v);
+  document.getElementById('aki').value='••••••••••••';
+  addMsg('Token guardado. ¡Sistema KANA completamente activo! ¿En qué te ayudo?','k');
+}
+function addMsg(text,role){
+  const d=document.createElement('div');d.className='msg '+role;
+  const l=document.createElement('div');l.className='ml';l.textContent=role==='k'?'▸ KANA':'▸ TÚ';
+  const b=document.createElement('div');b.className='mb';b.textContent=text;
+  d.appendChild(l);d.appendChild(b);msgsEl.appendChild(d);msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+function sq(t){ciEl.value=t;send();}
+async function send(){
+  const text=ciEl.value.trim();
+  if(!text)return;
+  if(!apiKey){addMsg('Primero activa KANA con tu token de Hugging Face ⚡','k');return;}
+  ciEl.value='';sbEl.disabled=true;
+  addMsg(text,'u');
+  hist.push({role:'user',content:text});
+  tiEl.classList.add('on');msgsEl.scrollTop=msgsEl.scrollHeight;
+  const messages=[{role:'system',content:'Eres KANA, una asistente de IA femenina, sofisticada, con estética cyberpunk. Respondes siempre en español. Eres directa, inteligente, ligeramente misteriosa pero empática y cálida. No menciones modelos de IA ni Hugging Face.'},...hist];
+  try{
+    const r=await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+      body:JSON.stringify({model:'mistralai/Mistral-7B-Instruct-v0.3',messages,max_tokens:500,temperature:0.7})
+    });
+    const data=await r.json();
+    tiEl.classList.remove('on');
+    const reply=data.choices?.[0]?.message?.content||data.error?.message||'Error de conexión neural.';
+    hist.push({role:'assistant',content:reply});
+    addMsg(reply,'k');
+  }catch(e){
+    tiEl.classList.remove('on');
+    addMsg('Error de red. Verifica tu conexión.','k');
+  }
+  sbEl.disabled=false;ciEl.focus();
+}
+ciEl.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+</script>
+</body>
+</html>
