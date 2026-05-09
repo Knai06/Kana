@@ -27,6 +27,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .mb{padding:10px 13px;border-radius:10px;font-size:13px;line-height:1.7}
 .msg.k .mb{background:#1a0030;border:1px solid #5a0fbf;color:#ddc8ff;border-top-left-radius:3px}
 .msg.u .mb{background:#1e0040;border:1px solid #7a28c0;color:#f0e0ff;border-top-right-radius:3px}
+.msg.k .mb img{width:100%;border-radius:8px;margin-top:6px;border:1px solid #5a0fbf}
+.img-loading{font-size:11px;color:#9060c0;letter-spacing:1px;padding:6px 0}
 .ti{display:none;align-self:flex-start;padding:10px 14px;background:#1a0030;border:1px solid #5a0fbf;border-radius:10px;border-top-left-radius:3px}
 .ti.on{display:flex;gap:4px;align-items:center}
 .td{width:6px;height:6px;border-radius:50%;background:#a855f7;animation:td 1.2s infinite}
@@ -56,19 +58,19 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="av"><img src="kana.png" alt="K" onerror="this.parentElement.textContent='K'"></div>
     <div class="hn">
       <div class="ht">K.A.N.A.</div>
-      <div class="hs"><div class="dot"></div>ASISTENTE I.A. · EN LÍNEA</div>
+      <div class="hs"><div class="dot"></div>ASISTENTE I.A. · IMÁGENES ACTIVADAS</div>
     </div>
   </div>
   <div class="msgs" id="msgs">
     <div class="msg k">
       <div class="ml">▸ KANA</div>
-      <div class="mb">Hola, soy KANA. Pega tu API Key de Groq abajo y toca ACTIVAR ⚡</div>
+      <div class="mb">Hola, soy KANA. Ahora puedo generar imágenes 🎨 Pega tu API Key de Groq y toca ACTIVAR ⚡</div>
     </div>
   </div>
   <div class="ti" id="ti"><div class="td"></div><div class="td"></div><div class="td"></div></div>
   <div class="qrow">
     <button class="qb" onclick="sq('¿Qué puedes hacer?')">¿Qué puedes hacer?</button>
-    <button class="qb" onclick="sq('¿Cómo estás, Kana?')">¿Cómo estás?</button>
+    <button class="qb" onclick="sq('Genera una imagen de un atardecer cyberpunk')">Imagen cyberpunk</button>
     <button class="qb" onclick="sq('Cuéntame algo curioso')">Dato curioso</button>
     <button class="qb" onclick="sq('Organiza mi día')">Organizar mi día</button>
   </div>
@@ -77,7 +79,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <button class="akb" onclick="saveKey()">ACTIVAR</button>
   </div>
   <div class="ia">
-    <input class="ci" id="ci" type="text" placeholder="Escribe a KANA...">
+    <input class="ci" id="ci" type="text" placeholder="Escribe a KANA... o pide una imagen 🎨">
     <button class="sb" id="sb" onclick="send()">ENVIAR</button>
   </div>
 </div>
@@ -88,30 +90,77 @@ const msgsEl=document.getElementById('msgs');
 const tiEl=document.getElementById('ti');
 const ciEl=document.getElementById('ci');
 const sbEl=document.getElementById('sb');
-if(apiKey){document.getElementById('aki').value='••••••••••••';addMsg('Token cargado. ¡KANA activa! ¿En qué te ayudo?','k');}
+if(apiKey){document.getElementById('aki').value='••••••••••••';addMsg('Token cargado. ¡KANA activa con generación de imágenes! 🎨','k');}
+
 function saveKey(){
   const v=document.getElementById('aki').value.trim();
   if(!v)return;
   apiKey=v;localStorage.setItem('kana_groq',v);
   document.getElementById('aki').value='••••••••••••';
-  addMsg('API Key guardada. ¡Sistema KANA completamente activo! ¿En qué te ayudo?','k');
+  addMsg('API Key guardada. ¡Sistema KANA activo! Puedo chatear y generar imágenes 🎨','k');
 }
+
+function isImageRequest(text){
+  const keywords=['genera','generar','crea','crear','dibuja','dibujar','imagen','foto','ilustración','ilustracion','muéstrame','muestrame','hazme una imagen','hazme un dibujo','pinta','pintar'];
+  const t=text.toLowerCase();
+  return keywords.some(k=>t.includes(k));
+}
+
+function extractImagePrompt(text){
+  const t=text.toLowerCase();
+  const triggers=['imagen de','imagen del','imagen de un','imagen de una','foto de','dibujo de','ilustración de','genera un','genera una','crea un','crea una','dibuja un','dibuja una','pinta un','pinta una','muéstrame','muestrame'];
+  for(const tr of triggers){
+    const idx=t.indexOf(tr);
+    if(idx!==-1) return text.slice(idx+tr.length).trim();
+  }
+  return text;
+}
+
 function addMsg(text,role){
   const d=document.createElement('div');d.className='msg '+role;
   const l=document.createElement('div');l.className='ml';l.textContent=role==='k'?'▸ KANA':'▸ TÚ';
   const b=document.createElement('div');b.className='mb';b.textContent=text;
   d.appendChild(l);d.appendChild(b);msgsEl.appendChild(d);msgsEl.scrollTop=msgsEl.scrollHeight;
 }
+
+function addImageMsg(prompt){
+  const d=document.createElement('div');d.className='msg k';
+  const l=document.createElement('div');l.className='ml';l.textContent='▸ KANA · IMAGEN';
+  const b=document.createElement('div');b.className='mb';
+  const loading=document.createElement('div');loading.className='img-loading';loading.textContent='⚡ Generando imagen...';
+  b.appendChild(loading);
+  const img=document.createElement('img');
+  const encodedPrompt=encodeURIComponent(prompt+', cyberpunk style, high quality, detailed');
+  img.src='https://image.pollinations.ai/prompt/'+encodedPrompt+'?width=400&height=400&nologo=true&seed='+Math.floor(Math.random()*9999);
+  img.alt=prompt;
+  img.style.display='none';
+  img.onload=function(){loading.style.display='none';img.style.display='block';msgsEl.scrollTop=msgsEl.scrollHeight;};
+  img.onerror=function(){loading.textContent='Error al generar imagen. Intenta de nuevo.';};
+  b.appendChild(img);
+  d.appendChild(l);d.appendChild(b);
+  msgsEl.appendChild(d);msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+
 function sq(t){ciEl.value=t;send();}
+
 async function send(){
   const text=ciEl.value.trim();
   if(!text)return;
   if(!apiKey){addMsg('Primero activa KANA con tu API Key de Groq ⚡','k');return;}
   ciEl.value='';sbEl.disabled=true;
   addMsg(text,'u');
+
+  if(isImageRequest(text)){
+    const prompt=extractImagePrompt(text)||text;
+    addMsg('Generando imagen: "'+prompt+'" 🎨','k');
+    addImageMsg(prompt);
+    sbEl.disabled=false;ciEl.focus();
+    return;
+  }
+
   hist.push({role:'user',content:text});
   tiEl.classList.add('on');msgsEl.scrollTop=msgsEl.scrollHeight;
-  const messages=[{role:'system',content:'Eres KANA, una asistente de IA femenina, sofisticada, con estética cyberpunk. Respondes siempre en español. Eres directa, inteligente, ligeramente misteriosa pero empática y cálida. No menciones que eres un modelo de IA ni Groq ni Llama.'},...hist];
+  const messages=[{role:'system',content:'Eres KANA, una asistente de IA femenina, sofisticada, con estética cyberpunk. Respondes siempre en español. Eres directa, inteligente, ligeramente misteriosa pero empática y cálida. Puedes generar imágenes cuando te lo pidan. No menciones que eres un modelo de IA ni Groq ni Llama.'},...hist];
   try{
     const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
