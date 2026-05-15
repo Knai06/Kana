@@ -194,6 +194,7 @@ function saveKey(){
   K.key=v;localStorage.setItem('kg',v);
   document.getElementById('aki').value='...';
   document.getElementById('stxt').textContent='ONLINE - TODOS LOS SISTEMAS';
+  playJarvisSound('activate');
   addMsg('API Key guardada. Sistema KANA definitivo activo!','k');
 }
 
@@ -282,7 +283,7 @@ function addMsg(text,role){
   var l=document.createElement('div');l.className='ml';l.textContent=role==='k'?'KANA':'TU';
   var b=document.createElement('div');b.className='mb';b.textContent=text;
   d.appendChild(l);d.appendChild(b);M.appendChild(d);M.scrollTop=M.scrollHeight;
-  if(role==='k')speak(text);
+  if(role==='k'){speak(text);playJarvisSound('msg');}
 }
 
 function addWeatherMsg(w){
@@ -390,6 +391,98 @@ async function send(){
   }
   SB.disabled=false;CI.focus();
 }
+
+
+// ── JARVIS SOUND ENGINE ──
+function playJarvisSound(type) {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    if(type === 'boot') {
+      // Boot sequence - multiple tones like Jarvis initializing
+      var times = [0, 0.15, 0.3, 0.5, 0.7, 0.9];
+      var freqs = [300, 500, 400, 700, 600, 900];
+      times.forEach(function(t, i) {
+        var o = ctx.createOscillator();
+        var g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = i % 2 === 0 ? 'sine' : 'triangle';
+        o.frequency.setValueAtTime(freqs[i], ctx.currentTime + t);
+        o.frequency.exponentialRampToValueAtTime(freqs[i] * 1.5, ctx.currentTime + t + 0.12);
+        g.gain.setValueAtTime(0, ctx.currentTime + t);
+        g.gain.linearRampToValueAtTime(0.15, ctx.currentTime + t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.14);
+        o.start(ctx.currentTime + t);
+        o.stop(ctx.currentTime + t + 0.15);
+      });
+      // Final sweep up
+      var sweep = ctx.createOscillator();
+      var sg = ctx.createGain();
+      sweep.connect(sg); sg.connect(ctx.destination);
+      sweep.type = 'sine';
+      sweep.frequency.setValueAtTime(400, ctx.currentTime + 1.0);
+      sweep.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 1.4);
+      sg.gain.setValueAtTime(0, ctx.currentTime + 1.0);
+      sg.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 1.05);
+      sg.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+      sweep.start(ctx.currentTime + 1.0);
+      sweep.stop(ctx.currentTime + 1.6);
+    }
+    
+    if(type === 'activate') {
+      // Activation sound - ascending feminine tones
+      var notes = [523, 659, 784, 1047];
+      notes.forEach(function(freq, i) {
+        var o = ctx.createOscillator();
+        var g = ctx.createGain();
+        var filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = freq;
+        o.connect(filter); filter.connect(g); g.connect(ctx.destination);
+        o.type = 'sine';
+        o.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+        g.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
+        g.gain.linearRampToValueAtTime(0.18, ctx.currentTime + i * 0.12 + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.2);
+        o.start(ctx.currentTime + i * 0.12);
+        o.stop(ctx.currentTime + i * 0.12 + 0.25);
+      });
+      // Shimmer effect
+      var sh = ctx.createOscillator();
+      var shg = ctx.createGain();
+      sh.connect(shg); shg.connect(ctx.destination);
+      sh.type = 'triangle';
+      sh.frequency.setValueAtTime(2000, ctx.currentTime + 0.5);
+      sh.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.9);
+      shg.gain.setValueAtTime(0.1, ctx.currentTime + 0.5);
+      shg.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
+      sh.start(ctx.currentTime + 0.5);
+      sh.stop(ctx.currentTime + 1.0);
+    }
+
+    if(type === 'msg') {
+      // Soft notification ping
+      var o = ctx.createOscillator();
+      var g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(800, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.08);
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime + 0.35);
+    }
+  } catch(e) {}
+}
+
+// Play boot sound on load
+window.addEventListener('load', function() {
+  document.body.addEventListener('click', function bootOnce() {
+    playJarvisSound('boot');
+    document.body.removeEventListener('click', bootOnce);
+  }, {once: true});
+});
 
 CI.addEventListener('keydown',function(e){if(e.key==='Enter')send();});
 window.speechSynthesis.onvoiceschanged=function(){};
